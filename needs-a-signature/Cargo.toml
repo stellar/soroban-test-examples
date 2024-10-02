@@ -1,0 +1,17 @@
+[package]
+name = "needs-a-signature"
+description = "This contract is a hello_world contract, but requires signature from the 'this-one-signs' contract in this workspace."
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
+this-one-signs = { path = "../this-one-signs" }

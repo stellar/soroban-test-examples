@@ -1,0 +1,16 @@
+[package]
+name = "this-one-signs"
+description = "This contract is a hello_world contract, but also implements `__check_auth` as is required by contracts that can sign other contracts via cross-contract call."
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }

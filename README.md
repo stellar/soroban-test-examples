@@ -1,2 +1,2 @@
 # soroban-test-examples
-Soroban Test Examples
+Example contracts for integration testing

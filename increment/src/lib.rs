@@ -8,10 +8,19 @@ pub struct IncrementContract;
 
 #[contractimpl]
 impl IncrementContract {
-    /// Increment increments an internal counter, and returns the value.
+    /// Initialize the counter with a value
+    pub fn __constructor(env: Env, counter: u32) {
+        env.storage().instance().set(&COUNTER, &counter);
+    }
+
+    /// Increment internal counter, return the value
     pub fn increment(env: Env) -> u32 {
         // Get the current count.
-        let mut count: u32 = env.storage().instance().get(&COUNTER).unwrap_or(0); // If no value set, assume 0.
+        let mut count: u32 = env
+            .storage()
+            .instance()
+            .get(&COUNTER)
+            .expect("counter not set!");
         log!(&env, "count: {}", count);
 
         // Increment the count.
@@ -28,6 +37,11 @@ impl IncrementContract {
 
         // Return the count to the caller.
         count
+    }
+
+    /// Get current counter value
+    pub fn get(env: Env) -> u32 {
+        env.storage().instance().get(&COUNTER).unwrap()
     }
 }
 

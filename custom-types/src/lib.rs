@@ -1,7 +1,7 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, symbol_short, vec, Address, Bytes, BytesN,
-    Env, Map, String, Symbol, Val, Vec, I256, U256,
+    contract, contracterror, contractevent, contractimpl, contracttype, symbol_short, vec, Address,
+    Bytes, BytesN, Duration, Env, Map, String, Symbol, Timepoint, Val, Vec, I256, U256,
 };
 
 const COUNTER: Symbol = symbol_short!("COUNTER");
@@ -47,6 +47,17 @@ pub enum ComplexEnum {
     Void,
 }
 
+#[contracttype]
+pub enum RecursiveEnum {
+    List(Vec<RecursiveEnum>),
+    Void,
+}
+
+#[contractevent(topics = ["auth"], data_format = "single-value")]
+pub struct AuthEvent {
+    pub world: Symbol,
+}
+
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
@@ -54,6 +65,16 @@ pub enum Error {
     /// Please provide an odd number
     NumberMustBeOdd = 1,
 }
+
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Erroneous {
+    /// Some contract libraries contain extra #[contracterror] definitions that end up compiled
+    /// into the main contract types. We need to make sure tooling deals with this properly.
+    HowCouldYou = 100,
+}
+
 #[contractimpl]
 impl CustomTypesContract {
     pub fn hello(_env: Env, hello: Symbol) -> Symbol {
@@ -63,8 +84,7 @@ impl CustomTypesContract {
     pub fn auth(env: Env, addr: Address, world: Symbol) -> Address {
         addr.require_auth();
         // Emit test event
-        env.events().publish(("auth",), world);
-
+        AuthEvent { world }.publish(&env);
         addr
     }
 
@@ -126,6 +146,10 @@ impl CustomTypesContract {
         complex
     }
 
+    pub fn recursive_enum(_env: Env, recursive: RecursiveEnum) -> RecursiveEnum {
+        recursive
+    }
+
     pub fn addresse(_env: Env, addresse: Address) -> Address {
         addresse
     }
@@ -185,8 +209,16 @@ impl CustomTypesContract {
     }
 
     pub fn get_object_vec_option(env: Env) -> Option<Vec<Test>> {
-        let obj: Test= Test{ a: 1, b: true, c: symbol_short!("hi") };
-        let obj2: Test= Test{ a: 2, b: false, c: symbol_short!("hello") };
+        let obj: Test = Test {
+            a: 1,
+            b: true,
+            c: symbol_short!("hi"),
+        };
+        let obj2: Test = Test {
+            a: 2,
+            b: false,
+            c: symbol_short!("hello"),
+        };
         Some(Vec::from_array(&env, [obj, obj2]))
     }
 
@@ -204,5 +236,13 @@ impl CustomTypesContract {
 
     pub fn tuple_strukt(_env: Env, tuple_strukt: TupleStruct) -> TupleStruct {
         tuple_strukt
+    }
+
+    pub fn timepoint(_env: Env, timepoint: Timepoint) -> Timepoint {
+        timepoint
+    }
+
+    pub fn duration(_env: Env, duration: Duration) -> Duration {
+        duration
     }
 }

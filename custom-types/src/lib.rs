@@ -58,6 +58,28 @@ pub struct AuthEvent {
     pub world: Symbol,
 }
 
+/// Event with user-defined types in topics and data, using the map format.
+#[contractevent(topics = ["swap", "pool"], data_format = "map")]
+pub struct SwapEvent {
+    #[topic]
+    pub from: Address,
+    #[topic]
+    pub card: RoyalCard,
+    pub strukt: Test,
+    pub complex: ComplexEnum,
+    pub amounts: Vec<i128>,
+    pub memo: Option<Symbol>,
+}
+
+/// Event with nested user-defined types, using the vec format.
+#[contractevent(topics = ["nested"], data_format = "vec")]
+pub struct NestedEvent {
+    #[topic]
+    pub simple: SimpleEnum,
+    pub tuple_strukt: TupleStruct,
+    pub map: Map<u32, Test>,
+}
+
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
@@ -86,6 +108,33 @@ impl CustomTypesContract {
         // Emit test event
         AuthEvent { world }.publish(&env);
         addr
+    }
+
+    pub fn emit_swap(
+        env: Env,
+        from: Address,
+        card: RoyalCard,
+        strukt: Test,
+        complex: ComplexEnum,
+    ) {
+        SwapEvent {
+            from,
+            card,
+            strukt,
+            complex,
+            amounts: vec![&env, 1i128, 2i128],
+            memo: None,
+        }
+        .publish(&env);
+    }
+
+    pub fn emit_nested(env: Env, simple: SimpleEnum, tuple_strukt: TupleStruct) {
+        NestedEvent {
+            simple,
+            tuple_strukt,
+            map: Map::new(&env),
+        }
+        .publish(&env);
     }
 
     // get current count
